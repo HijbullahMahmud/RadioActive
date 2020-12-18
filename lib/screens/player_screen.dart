@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_braintree/flutter_braintree.dart';
 import 'package:flutter_radio_player/flutter_radio_player.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:radioactive/screens/about_screen.dart';
 import 'package:radioactive/screens/last_tracks_screen.dart';
@@ -18,8 +19,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:xml2json/xml2json.dart';
 
 class PlayerScreen extends StatefulWidget {
+  bool isPlaying;
   var playerState = FlutterRadioPlayer.flutter_radio_paused;
   var volume = 0.8;
+
+  PlayerScreen(this.isPlaying);
 
   @override
   _PlayerScreenState createState() => _PlayerScreenState();
@@ -29,14 +33,10 @@ class _PlayerScreenState extends State<PlayerScreen>
     with TickerProviderStateMixin {
   AnimationController _controller;
 
-  int _currentIndex = 0;
-  final List<Widget> _children = [
-    new PlayerScreen(),
-  ];
   FlutterRadioPlayer _flutterRadioPlayer = new FlutterRadioPlayer();
 
   static String imageUrl =
-          'https://radioactivefm.gr/wp-content/uploads/2019/12/logo_master.png',
+      'https://radioactivefm.gr/wp-content/uploads/2019/12/logo_master.png',
       currentTitle = '',
       currentArtist = '';
   List<String> playerList = ['192Kbps', '64Kbps'];
@@ -51,32 +51,36 @@ class _PlayerScreenState extends State<PlayerScreen>
   String status = 'hidden';
   String title, artist;
   static final String tokenizationKey = 'sandbox_ndzxvs7r_ywrkwrt24jhxnrkc';
-  SharedPreferences sp;
   TextEditingController amountController = TextEditingController();
 
   void showNonce(BraintreePaymentMethodNonce nonce) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Payment method nonce:'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Text('Nonce: ${nonce.nonce}'),
-            SizedBox(height: 16),
-            Text('Type label: ${nonce.typeLabel}'),
-            SizedBox(height: 16),
-            Text('Description: ${nonce.description}'),
-          ],
-        ),
-      ),
+      builder: (_) =>
+          AlertDialog(
+            title: Text('Payment method nonce:'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Text('Nonce: ${nonce.nonce}'),
+                SizedBox(height: 16),
+                Text('Type label: ${nonce.typeLabel}'),
+                SizedBox(height: 16),
+                Text('Description: ${nonce.description}'),
+              ],
+            ),
+          ),
     );
   }
 
   @override
   void initState() {
     // TODO: implement initState
+
+   setState(() {
+     _isPlaying = this.widget.isPlaying;
+   });
 
     print("initState was called");
     _controller = new AnimationController(vsync: this)
@@ -87,7 +91,6 @@ class _PlayerScreenState extends State<PlayerScreen>
 
     super.initState();
 
-    getSaveData();
     selectedPlayer = playerList[1].toString();
     liveAtPlayer = '64 aac+';
     startTimer();
@@ -99,7 +102,7 @@ class _PlayerScreenState extends State<PlayerScreen>
   void dispose() {
     print("dispose was called");
     _controller.dispose();
-   // _flutterRadioPlayer.stop();
+    // _flutterRadioPlayer.stop();
     super.dispose();
   }
 
@@ -199,7 +202,7 @@ class _PlayerScreenState extends State<PlayerScreen>
             ),
             ListTile(
               leading:
-                  Icon(Icons.info_outline, color: ColorResource.primaryColor),
+              Icon(Icons.info_outline, color: ColorResource.primaryColor),
               title: Text(
                 'About',
                 style: TextStyle(color: ColorResource.primaryColor),
@@ -259,15 +262,27 @@ class _PlayerScreenState extends State<PlayerScreen>
         ),
       ),
       body: Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
+        width: MediaQuery
+            .of(context)
+            .size
+            .width,
+        height: MediaQuery
+            .of(context)
+            .size
+            .height,
         child: Stack(
           children: [
             Positioned(
               //top: -10,
               child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width,
+                height: MediaQuery
+                    .of(context)
+                    .size
+                    .height,
                 child: Stack(
                   children: [
                     Positioned(
@@ -276,7 +291,10 @@ class _PlayerScreenState extends State<PlayerScreen>
                       child: Center(
                         child: Container(
                           height: 500,
-                          width: MediaQuery.of(context).size.width,
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width,
                           decoration: new BoxDecoration(
                             color: Colors.transparent,
                             image: new DecorationImage(
@@ -301,7 +319,7 @@ class _PlayerScreenState extends State<PlayerScreen>
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         day + ' ' + time,
@@ -326,10 +344,13 @@ class _PlayerScreenState extends State<PlayerScreen>
                               ),
                               Padding(
                                 padding:
-                                    const EdgeInsets.only(left: 60, right: 60),
+                                const EdgeInsets.only(left: 60, right: 60),
                                 child: Container(
                                   height: 300,
-                                  width: MediaQuery.of(context).size.width,
+                                  width: MediaQuery
+                                      .of(context)
+                                      .size
+                                      .width,
                                   child: Stack(
                                     children: [
                                       Container(
@@ -345,7 +366,10 @@ class _PlayerScreenState extends State<PlayerScreen>
                                           ),
                                         ),
                                         width:
-                                            MediaQuery.of(context).size.width,
+                                        MediaQuery
+                                            .of(context)
+                                            .size
+                                            .width,
                                       )
                                     ],
                                   ),
@@ -356,16 +380,19 @@ class _PlayerScreenState extends State<PlayerScreen>
                               ),
                               Padding(
                                 padding:
-                                    const EdgeInsets.only(left: 60, right: 60),
+                                const EdgeInsets.only(left: 60, right: 60),
                                 child: Container(
-                                  width: MediaQuery.of(context).size.width,
+                                  width: MediaQuery
+                                      .of(context)
+                                      .size
+                                      .width,
                                   child: Align(
                                     alignment: Alignment.topLeft,
                                     child: Column(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.start,
+                                      MainAxisAlignment.start,
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           currentTitle,
@@ -378,7 +405,7 @@ class _PlayerScreenState extends State<PlayerScreen>
                                           currentArtist,
                                           style: TextStyle(
                                             color:
-                                                Colors.white.withOpacity(0.8),
+                                            Colors.white.withOpacity(0.8),
                                             fontSize: 18,
                                           ),
                                         )
@@ -399,7 +426,10 @@ class _PlayerScreenState extends State<PlayerScreen>
             Positioned(
               bottom: 0,
               child: Container(
-                width: MediaQuery.of(context).size.width,
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width,
                 height: 300,
                 child: Padding(
                   padding: const EdgeInsets.only(
@@ -417,7 +447,9 @@ class _PlayerScreenState extends State<PlayerScreen>
 
                             switch (returnData) {
                               case FlutterRadioPlayer.flutter_radio_playing:
-                              return  FlatButton(
+                                //save player state
+                                savePlayerState(true);
+                                return FlatButton(
                                     child: Container(
                                       height: 70,
                                       width: 70,
@@ -432,6 +464,8 @@ class _PlayerScreenState extends State<PlayerScreen>
                                       _flutterRadioPlayer.playOrPause();
                                     });
                               case FlutterRadioPlayer.flutter_radio_paused:
+                                //save player state
+                                savePlayerState(false);
                                 return FlatButton(
                                     child: Container(
                                       height: 70,
@@ -440,13 +474,23 @@ class _PlayerScreenState extends State<PlayerScreen>
                                           color: Colors.white,
                                           borderRadius: BorderRadius.all(
                                               Radius.circular(35))),
-                                      child: Icon(Icons.play_arrow_outlined),
+                                      child: this._isPlaying ?
+                                          Icon(Icons.stop) :
+                                      Icon(Icons.play_arrow),
                                     ),
                                     onPressed: () async {
                                       //await initRadioService();
                                       _flutterRadioPlayer.playOrPause();
+
+                                      //save player state
+                                      savePlayerState(false);
+                                      setState(() {
+                                        _isPlaying = false;
+                                      });
                                     });
                               case FlutterRadioPlayer.flutter_radio_stopped:
+                              //save player state
+                                savePlayerState(false);
                                 return FlatButton(
                                     child: Container(
                                       height: 70,
@@ -462,6 +506,8 @@ class _PlayerScreenState extends State<PlayerScreen>
                                     });
                                 break;
                               case FlutterRadioPlayer.flutter_radio_loading:
+                              //save player state
+                                savePlayerState(false);
                                 return CircularProgressIndicator(
                                   backgroundColor: Colors.white,
                                 );
@@ -483,7 +529,7 @@ class _PlayerScreenState extends State<PlayerScreen>
                               default:
                                 return Row(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.center,
+                                    CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                       Container(
@@ -494,41 +540,42 @@ class _PlayerScreenState extends State<PlayerScreen>
                                               borderRadius: BorderRadius.all(
                                                   Radius.circular(35))),
                                           child: snapshot.data ==
-                                                  FlutterRadioPlayer
-                                                      .flutter_radio_playing
+                                              FlutterRadioPlayer
+                                                  .flutter_radio_playing
                                               ? IconButton(
-                                                  onPressed: () async {
-                                                    print(
-                                                        "button press data: " +
-                                                            snapshot.data
-                                                                .toString());
-                                                    await _flutterRadioPlayer
-                                                        .stop();
+                                              onPressed: () async {
+                                                print(
+                                                    "button press data: " +
+                                                        snapshot.data
+                                                            .toString());
+                                                await _flutterRadioPlayer
+                                                    .stop();
 
-                                                    print('radio: ' + 'stop');
-                                                    /*if(returnData != 'flutter_radio_paused'){
+                                                print('radio: ' + 'stop');
+                                                /*if(returnData != 'flutter_radio_paused'){
                                                 _flutterRadioPlayer.stop();
                                               }*/
-                                                  },
-                                                  icon: Icon(Icons.stop))
+                                              },
+                                              icon: Icon(Icons.stop))
                                               : IconButton(
-                                                  onPressed: () async {
-                                                    print(
-                                                        "button press data: " +
-                                                            snapshot.data
-                                                                .toString());
-                                                    await _flutterRadioPlayer
-                                                        .play();
+                                              onPressed: () async {
+                                                print(
+                                                    "button press data: " +
+                                                        snapshot.data
+                                                            .toString());
+                                                await _flutterRadioPlayer
+                                                    .play();
 
-                                                    print('radio: ' + 'play');
-                                                    /*if(returnData != 'flutter_radio_paused'){
+                                                print('radio: ' + 'play');
+                                                /*if(returnData != 'flutter_radio_paused'){
                                                 _flutterRadioPlayer.stop();
                                               }*/
-                                                  },
-                                                  icon:
-                                                      Icon(Icons.play_arrow))),
+                                              },
+                                              icon:
+                                              Icon(Icons.play_arrow))),
                                     ]);
                                 break;
+
                             }
                           }),
                     ],
@@ -542,11 +589,20 @@ class _PlayerScreenState extends State<PlayerScreen>
     );
   }
 
+  void savePlayerState(bool state){
+    final playerBox = Hive.box("playerState");
+    playerBox.put("playerState", state);
+  }
+
   Future<bool> openDonatePopUp() async {
     return (await showDialog(
-          context: context,
-          builder: (context) => Container(
-            width: MediaQuery.of(context).size.width,
+      context: context,
+      builder: (context) =>
+          Container(
+            width: MediaQuery
+                .of(context)
+                .size
+                .width,
             child: new AlertDialog(
               title: Text(
                 '${(Strings.supportRadioActive)}',
@@ -667,7 +723,7 @@ class _PlayerScreenState extends State<PlayerScreen>
               ],
             ),
           ),
-        )) ??
+    )) ??
         false;
   }
 
@@ -696,27 +752,28 @@ class _PlayerScreenState extends State<PlayerScreen>
     const oneSec = const Duration(seconds: 1);
     _timer = new Timer.periodic(
       oneSec,
-      (Timer timer) => setState(
-        () {
-          if (_start < 1) {
-            timer.cancel();
-          } else {
-            _start++;
-            print('timer: ' + _start.toString());
-            //getSongInfo();
-            getImageUrl();
-            getData();
-            //initRadioService(currentTitle, currentArtist);
-            //getLastFiveSongs();
-          }
-        },
-      ),
+          (Timer timer) =>
+          setState(
+                () {
+              if (_start < 1) {
+                timer.cancel();
+              } else {
+                _start++;
+                print('timer: ' + _start.toString());
+                //getSongInfo();
+                getImageUrl();
+                getData();
+                //initRadioService(currentTitle, currentArtist);
+                //getLastFiveSongs();
+              }
+            },
+          ),
     );
   }
 
   getSongInfo() async {
     final response =
-        await http.get('https://radioactivefm.gr/live/rds/CurrentSong.txt');
+    await http.get('https://radioactivefm.gr/live/rds/CurrentSong.txt');
     var data = response.body;
     List list = data.toString().split(' - ');
     String title = list[0].toString();
@@ -737,7 +794,7 @@ class _PlayerScreenState extends State<PlayerScreen>
       //imageUrl = 'https://radioactivefm.gr/wp-content/uploads/2019/12/logo_master.png';
     });
     final response =
-        await http.get('https://www.radioactivefm.gr/live/api/getCover.php');
+    await http.get('https://www.radioactivefm.gr/live/api/getCover.php');
 
     print('response: ' + response.statusCode.toString());
 
@@ -748,7 +805,7 @@ class _PlayerScreenState extends State<PlayerScreen>
       var songData = xml2json.toParker();
       var rJson = json.decode(songData);
       String image =
-          rJson['cover']['cover_data']['image_url']['cover_data'].toString();
+      rJson['cover']['cover_data']['image_url']['cover_data'].toString();
       String metaData = rJson['cover']['cover_data']['song_title'].toString();
       List list = metaData.toString().split(' - ');
       String title = list[0].toString();
@@ -766,10 +823,12 @@ class _PlayerScreenState extends State<PlayerScreen>
     } else {
       setState(() {
         imageUrl =
-            'https://radioactivefm.gr/wp-content/uploads/2019/12/logo_master.png';
+        'https://radioactivefm.gr/wp-content/uploads/2019/12/logo_master.png';
       });
       print('image url: ' + imageUrl);
     }
+
+    //initRadioService();
   }
 
   void getData() async {
@@ -846,13 +905,14 @@ class _PlayerScreenState extends State<PlayerScreen>
   }*/
 
   Future<void> initRadioService() async {
-    if(_flutterRadioPlayer != null){
+    if (_flutterRadioPlayer != null) {
       print('radioState: player is not null');
-    }else{
+    } else {
       print('radioState: player is null');
     }
     try {
-      await _flutterRadioPlayer.init("$currentTitle", "$currentArtist", Strings.radioUrl64, "true");
+      await _flutterRadioPlayer.init(
+          "$currentTitle", "$currentArtist", Strings.radioUrl64, "true");
     } on PlatformException {
       print("Exception occurred while trying to register the services.");
     }
@@ -860,7 +920,7 @@ class _PlayerScreenState extends State<PlayerScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if(state == AppLifecycleState.resumed){
+    if (state == AppLifecycleState.resumed) {
       print('radioState: app resumed');
     }
   }
@@ -873,7 +933,4 @@ class _PlayerScreenState extends State<PlayerScreen>
     }
   }
 
-  void getSaveData() async {
-    sp = await SharedPreferences.getInstance();
-  }
 }

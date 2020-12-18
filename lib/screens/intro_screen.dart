@@ -10,6 +10,9 @@ import 'package:radioactive/utility/dimensions.dart';
 import 'package:radioactive/utility/strings.dart';
 
 class IntroScreen extends StatefulWidget {
+  bool isPlaying;
+  IntroScreen(this.isPlaying);
+
   @override
   _IntroScreenState createState() => _IntroScreenState();
 }
@@ -17,17 +20,18 @@ class IntroScreen extends StatefulWidget {
 class _IntroScreenState extends State<IntroScreen> with WidgetsBindingObserver{
   AppLifecycleState _lastLifecycleState;
 
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    print(' initState');
+    print('initState: ${this.widget.isPlaying}');
 
     Timer(
         Duration(seconds: 2),
             () => Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (BuildContext context) => PlayerScreen())));
+            builder: (BuildContext context) => PlayerScreen(this.widget.isPlaying))));
   }
 
   @override
@@ -98,7 +102,7 @@ class _IntroScreenState extends State<IntroScreen> with WidgetsBindingObserver{
                         size: Dimensions.defaultPaddingSize,
                       ),
                       onPressed: (){
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => PlayerScreen()));
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => PlayerScreen(this.widget.isPlaying)));
                       },
                     ),
                     SizedBox(height: 10.0,),
